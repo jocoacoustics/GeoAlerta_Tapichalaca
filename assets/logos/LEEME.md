@@ -1,0 +1,1 @@
+Para insertar el isologotipo oficial de Jocotoco en los informes HTML (sin alterar trazos), coloca una copia institucional autorizada aquí con el nombre `jocotoco_oficial.svg`. No se incluye un logo inventado. Referencia pública: https://jocotoco.org.ec/dct/tmp_adjuntos/noEn/000/073/MatrizDatos_1757014841Logo-jocotoco2025.svg

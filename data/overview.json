@@ -1,0 +1,20 @@
+{
+  "site": "GeoAlerta Tapichalaca",
+  "data_classification": "public_aggregated",
+  "publication_status": "pending_approval",
+  "contains_precise_station_coordinates": false,
+  "disclaimer": "Sin datos públicos aprobados. No publicar coordenadas operativas.",
+  "scenarios": {
+    "six": {
+      "station_count": null,
+      "priority_coverage_percent": null,
+      "description": "Pendiente de aprobación institucional."
+    },
+    "minimum": {
+      "station_count": null,
+      "priority_coverage_percent": null,
+      "description": "Pendiente de aprobación institucional."
+    }
+  },
+  "approved_public_zones": []
+}

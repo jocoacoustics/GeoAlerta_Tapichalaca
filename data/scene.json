@@ -1,0 +1,324 @@
+{
+  "schema": "geoalerta.scene.v2",
+  "version": "0.2.2",
+  "classification": "synthetic_demo",
+  "provenance": "Demostración cartográfica sintética; ninguna geometría oficial ni modelo verificado.",
+  "center": {
+    "lon": -79.13,
+    "lat": -4.505
+  },
+  "camera": {
+    "height_m": 9400,
+    "heading": 18,
+    "pitch": -53
+  },
+  "boundary": {
+    "type": "Feature",
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -79.1374103,
+            -4.5102252
+          ],
+          [
+            -79.1401214,
+            -4.5036486
+          ],
+          [
+            -79.1370488,
+            -4.4995045
+          ],
+          [
+            -79.1321689,
+            -4.4973423
+          ],
+          [
+            -79.1250297,
+            -4.4981532
+          ],
+          [
+            -79.1218668,
+            -4.5031532
+          ],
+          [
+            -79.1237645,
+            -4.5090541
+          ],
+          [
+            -79.1289156,
+            -4.5121171
+          ],
+          [
+            -79.1374103,
+            -4.5102252
+          ]
+        ]
+      ]
+    },
+    "properties": {
+      "demo": true
+    }
+  },
+  "risk": [
+    {
+      "lon": -79.1249393,
+      "lat": -4.5091441,
+      "score": 0.91,
+      "radius_m": 195
+    },
+    {
+      "lon": -79.1243971,
+      "lat": -4.5075225,
+      "score": 0.76,
+      "radius_m": 135
+    },
+    {
+      "lon": -79.1365066,
+      "lat": -4.5093243,
+      "score": 0.82,
+      "radius_m": 150
+    },
+    {
+      "lon": -79.1363259,
+      "lat": -4.5043243,
+      "score": 0.52,
+      "radius_m": 170
+    },
+    {
+      "lon": -79.1311748,
+      "lat": -4.500045,
+      "score": 0.28,
+      "radius_m": 155
+    }
+  ],
+  "forest": [],
+  "canopy": [],
+  "loss": [],
+  "scenarios": {
+    "six": {
+      "status": "SIMULADO — sin optimización",
+      "stations": [
+        {
+          "id": "N01",
+          "lon": -79.1291867,
+          "lat": -4.501036,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N02",
+          "lon": -79.1316266,
+          "lat": -4.5025225,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N03",
+          "lon": -79.1310844,
+          "lat": -4.5045495,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N04",
+          "lon": -79.1283282,
+          "lat": -4.5056757,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N05",
+          "lon": -79.1328466,
+          "lat": -4.5069369,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N06",
+          "lon": -79.1336148,
+          "lat": -4.509009,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        }
+      ],
+      "base": {
+        "id": "BASE_00",
+        "name": "Base ficticia",
+        "lon": -79.1280119,
+        "lat": -4.4992342,
+        "elevation_m": null
+      },
+      "links": [
+        {
+          "from": "BASE_00",
+          "to": "N01",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N01",
+          "to": "N02",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N02",
+          "to": "N03",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N03",
+          "to": "N04",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N03",
+          "to": "N05",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N05",
+          "to": "N06",
+          "distance_m": null,
+          "profile": []
+        }
+      ],
+      "acoustic_radius_m": 900,
+      "max_link_m": 500,
+      "heatmaps": {
+        "acoustic": {
+          "url": "data/heat_six_acoustic.png",
+          "bounds": [
+            -79.1420623,
+            -4.5175302,
+            -79.1195648,
+            -4.490713
+          ],
+          "method": "distance_taper_v1_UNCALIBRATED",
+          "radius_m": 900.0,
+          "calibrated": false,
+          "connected_nodes": 6,
+          "note": "Índice geométrico de distancia; no es intensidad RSSI ni probabilidad de detección"
+        },
+        "radio": {
+          "url": "data/heat_six_radio.png",
+          "bounds": [
+            -79.1420623,
+            -4.5175302,
+            -79.1195648,
+            -4.490713
+          ],
+          "method": "distance_taper_v1_UNCALIBRATED",
+          "radius_m": 500.0,
+          "calibrated": false,
+          "connected_nodes": 7,
+          "note": "Índice geométrico de distancia; no es intensidad RSSI ni probabilidad de detección"
+        }
+      }
+    },
+    "minimum": {
+      "status": "SIMULADO — sin optimización",
+      "stations": [
+        {
+          "id": "N01",
+          "lon": -79.1291867,
+          "lat": -4.501036,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N02",
+          "lon": -79.1316266,
+          "lat": -4.5025225,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N03",
+          "lon": -79.1310844,
+          "lat": -4.5045495,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        },
+        {
+          "id": "N04",
+          "lon": -79.1283282,
+          "lat": -4.5056757,
+          "elevation_m": null,
+          "acoustic_radius_m": 900
+        }
+      ],
+      "base": {
+        "id": "BASE_00",
+        "name": "Base ficticia",
+        "lon": -79.1280119,
+        "lat": -4.4992342,
+        "elevation_m": null
+      },
+      "links": [
+        {
+          "from": "BASE_00",
+          "to": "N01",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N01",
+          "to": "N02",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N02",
+          "to": "N03",
+          "distance_m": null,
+          "profile": []
+        },
+        {
+          "from": "N03",
+          "to": "N04",
+          "distance_m": null,
+          "profile": []
+        }
+      ],
+      "acoustic_radius_m": 900,
+      "max_link_m": 500,
+      "heatmaps": {
+        "acoustic": {
+          "url": "data/heat_minimum_acoustic.png",
+          "bounds": [
+            -79.1400659,
+            -4.5142053,
+            -79.1195648,
+            -4.490713
+          ],
+          "method": "distance_taper_v1_UNCALIBRATED",
+          "radius_m": 900.0,
+          "calibrated": false,
+          "connected_nodes": 4,
+          "note": "Índice geométrico de distancia; no es intensidad RSSI ni probabilidad de detección"
+        },
+        "radio": {
+          "url": "data/heat_minimum_radio.png",
+          "bounds": [
+            -79.1400659,
+            -4.5142053,
+            -79.1195648,
+            -4.490713
+          ],
+          "method": "distance_taper_v1_UNCALIBRATED",
+          "radius_m": 500.0,
+          "calibrated": false,
+          "connected_nodes": 5,
+          "note": "Índice geométrico de distancia; no es intensidad RSSI ni probabilidad de detección"
+        }
+      }
+    }
+  },
+  "coverage_method": "distance_taper_v1_UNCALIBRATED"
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoAlerta Tapichalaca · Visor 3D</title>
+<meta name="theme-color" content="#071822">
+<meta name="description" content="GeoAlerta Tapichalaca: visor 3D de conservación, modelación ecoacústica y conectividad LoRa.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link href="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<script defer src="https://cdn.jsdelivr.net/npm/cesium@1.136.0/Build/Cesium/Cesium.js"></script>
+<script defer src="js/app.js"></script>
+</head><body data-public="true">
+<div id="world" aria-label="Mapa tridimensional interactivo"></div>
+<div id="loading" role="status"><div class="spinner"></div><strong>GeoAlerta Tapichalaca</strong><span>Preparando visor geográfico...</span></div>
+<header class="header glass">
+  <div class="identity"><div class="identity-icon"><svg viewBox="0 0 56 56" aria-hidden="true"><path fill="#c5d7c1" d="M6 41 Q22 5 51 13 Q36 24 24 42 Q16 29 6 41Z"/><path d="M12 47Q31 31 46 16" fill="none" stroke="#eb774d" stroke-width="4"/></svg></div><div class="identity-name"><span class="joco">JOCOTOCO</span><span class="joco-sub">FUNDACIÓN DE CONSERVACIÓN</span></div></div>
+  <div class="brand"><strong>GeoAlerta Tapichalaca</strong><span>Planificación de red de vigilancia ecoacústica</span></div>
+  <div class="top-right"><span id="dataTag" class="data-pill">Cargando estado...</span><label class="search"><span>⌕</span><input id="search" placeholder="Buscar estación…" autocomplete="off" aria-label="Buscar estación"><kbd>↵</kbd></label><button id="help" class="round" title="Información de fuentes">ⓘ</button></div>
+</header>
+<div id="demoBanner" class="demo-banner" hidden>DEMOSTRACIÓN VISUAL · Las estaciones, coberturas y límites mostrados son sintéticos. No representan la reserva ni posiciones reales.</div>
+<aside class="panel layers glass" aria-label="Panel de capas y escenarios">
+ <div class="tabs"><button class="tab on" data-tab="layers">◈ <span>Capas</span></button><button class="tab" data-tab="scenarios">▣ <span>Escenarios</span></button><button class="tab" data-tab="tools">⚒ <span>Herramientas</span></button></div>
+ <section id="pane-layers" class="pane on">
+  <div class="layer-title">VISUALIZACIÓN TERRITORIAL <span id="layerCount">—</span></div>
+  <label class="layer"><input type="checkbox" data-layer="satellite" checked><span class="layer-icon">◈</span><span class="layertxt"><strong>Imagen satelital</strong><small>ArcGIS World Imagery</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="terrain" checked><span class="layer-icon">◭</span><span class="layertxt"><strong>Relieve 3D</strong><small id="terrainDetail">Buscando proveedor...</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="forest" checked><span class="layer-icon forest">▧</span><span class="layertxt"><strong>Cobertura forestal</strong><small id="forestDetail">Solo donde exista capa</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="canopy"><span class="layer-icon forest">♣</span><span class="layertxt"><strong>Altura de dosel</strong><small id="canopyDetail">ETH 2020 · pendiente de carga</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="loss"><span class="layer-icon warn">▨</span><span class="layertxt"><strong>Pérdida de bosque</strong><small id="lossDetail">Sin serie cartográfica cargada</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="risk" checked><span class="layer-icon warn">⬢</span><span class="layertxt"><strong>Zonas de riesgo</strong><small id="riskDetail">Modelo territorial</small></span><span class="dots">•••</span></label>
+  <label class="layer"><input type="checkbox" data-layer="boundary" checked><span class="layer-icon">◇</span><span class="layertxt"><strong>Área de estudio</strong><small id="boundaryDetail">Geometría declarada</small></span><span class="dots">•••</span></label>
+  <div class="layer-title divider-title">MAPAS DE CALOR <span>NO CALIBRADOS</span></div>
+  <label class="layer"><input type="checkbox" data-layer="acousticHeat" checked><span class="layer-icon forest">◉</span><span class="layertxt"><strong>Calor acústico</strong><small>Distancia a sensores · hipótesis 900 m</small></span></label>
+  <label class="layer"><input type="checkbox" data-layer="radioHeat" checked><span class="layer-icon blue">≋</span><span class="layertxt"><strong>Calor LoRa</strong><small>Cercanía a nodos conectados · NO RSSI</small></span></label>
+  <div class="heat-settings"><label for="heatOpacity">Transparencia de coberturas <output id="heatOpacityLabel">70 %</output></label><input type="range" id="heatOpacity" min="0" max="100" value="70" step="5"></div>
+  <div class="layer-title divider-title">INFRAESTRUCTURA <span>VISOR</span></div>
+  <label class="layer"><input type="checkbox" data-layer="stations" checked><span class="layer-icon blue">●</span><span class="layertxt"><strong>Estaciones propuestas</strong><small id="stationDetail">Selecciona un escenario</small></span></label>
+  <label class="layer"><input type="checkbox" data-layer="links" checked><span class="layer-icon gold">╱</span><span class="layertxt"><strong>Enlaces LoRa</strong><small>Modelación de conectividad</small></span></label>
+  <label class="layer"><input type="checkbox" data-layer="acoustic"><span class="layer-icon forest">◉</span><span class="layertxt"><strong>Contornos acústicos</strong><small>Círculos de alcance · referencia</small></span></label>
+  <label class="layer"><input type="checkbox" data-layer="base" checked><span class="layer-icon red">⌂</span><span class="layertxt"><strong>Base de la red</strong><small id="baseDetail">Ubicación según estado</small></span></label>
+ </section>
+ <section id="pane-scenarios" class="pane"><div class="pane-heading">Escenarios de diseño</div><p class="minor">Elige un resultado. Los valores solo se muestran si fueron procesados.</p><div class="scenario-stack"><button class="scenario-item selected" data-scenario="six"><strong>A · Seis estaciones</strong><small>Presupuesto fijo y máximo alcance ponderado</small></button><button class="scenario-item" data-scenario="minimum"><strong>B · Número mínimo</strong><small>Cobertura objetivo con conectividad</small></button></div><div class="param"><span>Radio acústico</span><strong id="radiusParameter">150 m (hipótesis)</strong></div><div class="param"><span>Enlace LoRa máximo</span><strong id="linkParameter">500 m (cribado)</strong></div><div class="param"><span>Modelo</span><strong id="modelParameter">Sin calibrar</strong></div><p class="minor note">Este visor NO calcula nuevas estaciones en el navegador. Los escenarios provienen de Python y se exportan como datos estáticos.</p></section>
+ <section id="pane-tools" class="pane"><div class="pane-heading">Navegación y terreno</div><button class="action" id="orbit">▶ Iniciar vuelo panorámico</button><button class="action" id="goHome">⌖ Ir al área de estudio</button><button class="action" id="capture">▣ Guardar captura PNG</button><div class="layer-title divider-title">PROVEEDORES 3D</div><label class="setup-label" for="ionToken">Cesium ion · token restringido (opcional)</label><input class="setup-input" id="ionToken" type="password" placeholder="Token de solo lectura"><button class="action" id="useIon">Activar Cesium World Terrain</button><p class="minor">La vista intenta primero relieve ArcGIS. Si no está disponible, usa globo elipsoidal hasta que configures un proveedor. El token no se guarda.</p></section>
+ <div class="panel-footer"><span class="pulse"></span><span id="statusMini">Fuente del visor: iniciando</span></div>
+</aside>
+<div class="nav-controls glass"><button id="zoomIn" aria-label="Acercar">+</button><button id="zoomOut" aria-label="Alejar">−</button><div class="thin-line"></div><button id="north" aria-label="Orientar norte">N ↑</button><button id="locate" aria-label="Centrar área de estudio">⊙</button></div>
+<aside id="detail" class="detail glass" hidden><div class="detail-head"><strong id="detailTitle">Estación</strong><button id="closeDetail" aria-label="Cerrar">×</button></div><div class="detail-tabs"><span>Información</span><span>Conectividad</span></div><dl id="detailRows"></dl><p id="detailFoot" class="detail-foot"></p></aside>
+<aside class="risk-legend glass"><strong id="legendTitle">Riesgo antrópico</strong><div><span class="swatch very-high"></span> Muy alto</div><div><span class="swatch high"></span> Alto</div><div><span class="swatch medium"></span> Medio</div><div><span class="swatch low"></span> Bajo</div><small id="legendNote">Calor azul = LoRa; verde/amarillo = acústica. Índices no calibrados.</small></aside>
+<div class="minimap glass"><div id="minimapPlot" class="minimap-map"></div><div class="minimap-caption">Ámbito de estudio <span>↗</span></div></div>
+<div class="bottom-row">
+ <div class="time-panel glass"><div class="panel-heading"><span id="timeTitle">Pérdida de bosque</span><span class="small-status" id="timeStatus">Serie temporal no cargada</span></div><div class="time-actions"><button id="playTime" aria-label="Reproducir cambios" disabled>▶</button><div class="slider-wrap"><input id="year" type="range" min="1985" max="2024" value="2024" disabled><div class="year-ends"><span>1985</span><strong id="yearValue">2024</strong></div></div></div></div>
+ <div class="elevation glass"><div class="panel-heading">Perfil del enlace <span id="profileName">Selecciona un enlace</span></div><svg id="profile" viewBox="0 0 500 115" role="img" aria-label="Perfil de elevación"><text x="250" y="60" text-anchor="middle" fill="#98aab1" font-size="13">Perfil disponible al cargar datos del DEM</text></svg></div>
+</div>
+<div class="bottom-credit">© <span id="creditYear">2026</span> GeoAlerta · Jocotoco · <span id="mapStatus">Iniciando</span></div>
+<div class="toast" id="toast" role="alert" hidden></div>
+<div class="help-modal" id="about" hidden><div class="modal-content glass"><button id="closeHelp" aria-label="Cerrar">×</button><h2>GeoAlerta v0.2.2</h2><p>Interfaz de planificación de sensores acústicos y conectividad LoRa. Las ubicaciones y los resultados de la versión pública son únicamente demostrativos. Las capas de calor representan proximidad geométrica, no señal medida ni probabilidad de detección.</p><p><strong>Terreno e imagen:</strong> dependen de proveedores cartográficos externos y sus condiciones de uso. La altura de dosel necesita capas científicas específicas; CesiumJS no reconstruye por sí solo árboles individuales.</p><p><strong>Datos institucionales:</strong> el cálculo se ejecuta en Colab/Python, fuera del sitio público. No se incluyen credenciales ni posiciones operativas sin autorización.</p><p id="aboutSource"></p></div></div>
+</body></html>
