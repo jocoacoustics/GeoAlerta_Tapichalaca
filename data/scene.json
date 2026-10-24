@@ -1,6 +1,6 @@
 {
   "schema": "geoalerta.scene.v2",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "classification": "synthetic_demo",
   "provenance": "Demostración cartográfica sintética; ninguna geometría oficial ni modelo verificado.",
   "center": {
