@@ -1,4 +1,4 @@
-/* GeoAlerta v0.2.3 — CesiumJS. public_real es publicación autorizada explícitamente; synthetic_demo es solo maqueta. */
+/* GeoAlerta v0.2.4 — CesiumJS. public_real es publicación autorizada explícitamente; synthetic_demo es solo maqueta. */
 'use strict';
 const $ = id => document.getElementById(id);
 const state = {heatLayers:{},heatSeq:0,scene:null,viewer:null,imagery:null,terrainAvailable:false,sceneObjects:{},scenario:'six',activeSceneEntities:[],timeInterval:null,orbiting:false,orbitTick:null};
@@ -7,7 +7,7 @@ const ACTIVE_COLOR = {blue:'#35b9fe',orange:'#ffc642',red:'#ee503d',green:'#79cb
 function notify(message,ms=4600){const n=$('toast');n.textContent=message;n.hidden=false;clearTimeout(notify.timer);notify.timer=setTimeout(()=>n.hidden=true,ms)}
 function updateStatus(message){$('mapStatus').textContent=message;$('statusMini').textContent=message;}
 function isSynthetic(){return state.scene?.classification==='synthetic_demo'}
-function allowedLayer(name){const s=state.scene||{};const h=s.scenarios?.[state.scenario]?.heatmaps||{};return ({acousticHeat:!!h.acoustic,radioHeat:!!h.radio,canopy:(s.canopy||[]).length>0,loss:(s.loss||[]).length>0,forest:(s.forest||[]).length>0,risk:(s.risk||[]).length>0,boundary:!!s.boundary})[name] ?? true}
+function allowedLayer(name){const s=state.scene||{};const h=s.scenarios?.[state.scenario]?.heatmaps||{};return ({acousticHeat:!!h.acoustic,radioHeat:!!h.radio,canopy:(s.canopy||[]).length>0,loss:(s.loss||[]).length>0,forest:(s.forest||[]).length>0,risk:!!s.risk_raster||(s.risk||[]).length>0,boundary:!!s.boundary})[name] ?? true}
 function selected(name){const el=document.querySelector(`input[data-layer="${name}"]`);return !!el?.checked;}
 function updateLayers(){for(const el of document.querySelectorAll('input[data-layer]')){const kind=el.dataset.layer;const yes=allowedLayer(kind);el.disabled=!yes;if(!yes)el.checked=false;}for(const [name,objects] of Object.entries(state.sceneObjects)){for(const o of objects||[]) o.show=selected(name)}updateSatellite();updateTerrainVisibility();updateHeatVisibility();}
 function color(hex,alpha=1){return C().Color.fromCssColorString(hex).withAlpha(alpha)}
@@ -19,7 +19,7 @@ function addBoundary(){const b=state.scene.boundary; if(!b?.geometry)return;cons
  for(const shape of shapes){const outer=shape[0]||[];if(outer.length<4)continue;const pts=outer.flatMap(coord=>[coord[0],coord[1]]);makeEntity('boundary',{name:'Límite del área',polygon:{hierarchy:C().Cartesian3.fromDegreesArray(pts),material:color('#69db85',0.075),outline:true,outlineColor:color('#a2ff9d',.86),height:0,heightReference:C().HeightReference.CLAMP_TO_GROUND},polyline:{positions:C().Cartesian3.fromDegreesArray(pts),clampToGround:true,width:2.7,material:color('#b4f8ae',.95)}})} }
 function addEnvironment(){const S=state.scene;
  if(S.boundary)addBoundary();
- for(const s of S.risk||[]){const intensity=Math.max(0,Math.min(1,+s.score||0));const hue=intensity>.79?'#e03424':intensity>.55?'#f37a24':intensity>.32?'#ffd34b':'#73b92a';makeEntity('risk',{name:'Zona de riesgo',position:pointPosition(s),ellipse:{semiMinorAxis:+s.radius_m||90,semiMajorAxis:+s.radius_m||90,material:color(hue,.30),outline:true,outlineColor:color(hue,.36),heightReference:C().HeightReference.CLAMP_TO_GROUND}})}
+ for(const s of (S.risk_raster ? [] : (S.risk||[]))){const intensity=Math.max(0,Math.min(1,+s.score||0));const hue=intensity>.79?'#e03424':intensity>.55?'#f37a24':intensity>.32?'#ffd34b':'#73b92a';makeEntity('risk',{name:'Zona de riesgo',position:pointPosition(s),ellipse:{semiMinorAxis:+s.radius_m||90,semiMajorAxis:+s.radius_m||90,material:color(hue,.30),outline:true,outlineColor:color(hue,.36),heightReference:C().HeightReference.CLAMP_TO_GROUND}})}
  for(const s of S.canopy||[]){let h=+s.height_m||0;let cl=h>=30?'#145c43':h>=20?'#2e9a54':h>=10?'#81c85d':'#e1d965';makeEntity('canopy',{name:`Dosel estimado ${h.toFixed(1)} m`,position:pointPosition(s),ellipse:{semiMajorAxis:s.radius_m||45,semiMinorAxis:s.radius_m||45,material:color(cl,.52),heightReference:C().HeightReference.CLAMP_TO_GROUND},properties:{height_m:h}})}
  for(const p of S.forest||[]){makeEntity('forest',{name:'Bosque',position:pointPosition(p),ellipse:{semiMajorAxis:p.radius_m||70,semiMinorAxis:p.radius_m||70,material:color('#2e8d4e',.21),heightReference:C().HeightReference.CLAMP_TO_GROUND}})}
  for(const p of S.loss||[]){const ent=makeEntity('loss',{name:`Pérdida forestal ${p.year}`,position:pointPosition(p),ellipse:{semiMajorAxis:p.radius_m||50,semiMinorAxis:p.radius_m||50,material:color('#fc4431',.60),heightReference:C().HeightReference.CLAMP_TO_GROUND}});ent._geoalertYear=+p.year||0;}
@@ -43,7 +43,7 @@ function updateHeatVisibility(){
  for(const [name,layer] of Object.entries(state.heatLayers)){
     if(!layer)continue;
     layer.show=selected(name);
-    layer.alpha=heatAlpha();
+    layer.alpha=name==='risk'?Math.min(0.95,heatAlpha()):heatAlpha();
  }
 }
 async function updateHeatLayers(){
@@ -54,8 +54,8 @@ async function updateHeatLayers(){
  state.heatLayers={};
  const scenario=state.scene?.scenarios?.[state.scenario];
  if(!scenario||!state.viewer)return;
- for(const [kind,layerName] of [['acoustic','acousticHeat'],['radio','radioHeat']]){
-   const info=scenario.heatmaps?.[kind];
+ for(const [kind,layerName] of [['acoustic','acousticHeat'],['radio','radioHeat'],['risk','risk']]){
+   const info=kind==='risk'?state.scene?.risk_raster:scenario.heatmaps?.[kind];
    if(!info?.url||!Array.isArray(info.bounds)||info.bounds.length!==4)continue;
    try{
      const b=info.bounds.map(Number);
@@ -125,10 +125,10 @@ function initUI(){document.querySelectorAll('.tab').forEach(b=>b.addEventListene
  $('closeDetail').addEventListener('click',()=>$('detail').hidden=true);$('year').addEventListener('input',updateYear);
  $('playTime').addEventListener('click',()=>{if(state.timeInterval){stopTime();return;}$('playTime').textContent='■';if(+$('year').value>=+$('year').max)$('year').value=$('year').min;updateYear();state.timeInterval=setInterval(()=>{if(+$('year').value>=+$('year').max){stopTime();return}$('year').value=+$('year').value+1;updateYear()},350)});
  $('help').addEventListener('click',()=>$('about').hidden=false);$('closeHelp').addEventListener('click',()=>$('about').hidden=true);$('about').addEventListener('click',e=>{if(e.target===$('about'))$('about').hidden=true});
- $('capture').addEventListener('click',()=>{try{state.viewer.render();const a=document.createElement('a');a.download='GeoAlerta_v0.2.3.png';a.href=state.viewer.canvas.toDataURL('image/png');a.click()}catch(err){notify('La captura está bloqueada por el navegador o el proveedor de imágenes.')}});
+ $('capture').addEventListener('click',()=>{try{state.viewer.render();const a=document.createElement('a');a.download='GeoAlerta_v0.2.4.png';a.href=state.viewer.canvas.toDataURL('image/png');a.click()}catch(err){notify('La captura está bloqueada por el navegador o el proveedor de imágenes.')}});
  }
 function applySceneLabels(){const S=state.scene;const synthetic=isSynthetic();$('dataTag').textContent=synthetic?'VISTA DEMO · NO OPERATIVA':(S.classification==='public_real'?'RESULTADOS REALES · MODELO NO CALIBRADO':'VISOR INTERNO · DATOS DE MODELO');$('dataTag').classList.toggle('demo',synthetic);$('demoBanner').hidden=!synthetic;
- $('boundaryDetail').textContent=synthetic?'Polígono ficticio':'Límite procesado';$('baseDetail').textContent=synthetic?'Base ficticia':'Base en escenario interno';$('riskDetail').textContent=synthetic?'Riesgo ilustrativo':'Predicción sin calibrar';$('forestDetail').textContent=(S.forest||[]).length?'Capa del proyecto':'No descargada';$('canopyDetail').textContent=(S.canopy||[]).length?'ETH 2020 · estimación':'Sin datos de dosel';$('lossDetail').textContent=(S.loss||[]).length?'Serie del proyecto':'Sin serie temporal';$('aboutSource').textContent=`Origen: ${S.provenance||'No declarado'}. Calor acústico y LoRa: solo cercanía geométrica sin propagación ni calibración de campo.`;
+ $('boundaryDetail').textContent=synthetic?'Polígono ficticio':'Límite procesado';$('baseDetail').textContent=synthetic?'Base ficticia':'Base en escenario interno';$('riskDetail').textContent=synthetic?'Riesgo ilustrativo':(S.risk_raster?'Superficie completa · índice no calibrado':'Muestreo puntual · índice no calibrado');$('forestDetail').textContent=(S.forest||[]).length?'Capa del proyecto':'No descargada';$('canopyDetail').textContent=(S.canopy||[]).length?'ETH 2020 · estimación':'Sin datos de dosel';$('lossDetail').textContent=(S.loss||[]).length?'Serie del proyecto':'Sin serie temporal';$('aboutSource').textContent=`Origen: ${S.provenance||'No declarado'}. Calor acústico y LoRa: solo cercanía geométrica sin propagación ni calibración de campo.`;
  }
 async function initialize(){initUI(); try{const response=await fetch('data/scene.json',{cache:'no-store'});if(!response.ok)throw Error(`HTTP ${response.status}`);state.scene=await response.json();if(state.scene.schema!=='geoalerta.scene.v2'||!['synthetic_demo','internal_only','public_real'].includes(state.scene.classification))throw Error('Esquema o clasificación inválidos');if(state.scene.classification==='internal_only'&&document.body.dataset.public==='true')throw Error('DATOS INTERNOS NO AUTORIZADOS. Genera una escena public_real con aprobación explícita.');
  if(state.scene.classification==='public_real' && !state.scene.publication?.approved_by_operator)throw Error('Escena real sin confirmación explícita de publicación');}catch(err){$('loading').innerHTML=`<strong>No se pudieron cargar los datos del visor</strong><span>${String(err.message)}</span><span>Ejecuta un servidor local, no abras index.html con file://</span>`;return;}

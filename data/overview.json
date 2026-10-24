@@ -1,19 +1,21 @@
 {
   "site": "GeoAlerta Tapichalaca",
   "data_classification": "public_aggregated",
-  "publication_status": "pending_approval",
+  "publication_status": "published",
   "contains_precise_station_coordinates": false,
-  "disclaimer": "Sin datos públicos aprobados. No publicar coordenadas operativas.",
+  "disclaimer": "Resultados agregados de un modelo no calibrado; los detalles espaciales están en scene.json y son PÚBLICOS.",
   "scenarios": {
     "six": {
-      "station_count": null,
-      "priority_coverage_percent": null,
-      "description": "Pendiente de aprobación institucional."
+      "station_count": 6,
+      "priority_coverage_percent": 23.9,
+      "optimization_status": "factible",
+      "description": "Modelo predictivo, no calibrado en campo"
     },
     "minimum": {
-      "station_count": null,
-      "priority_coverage_percent": null,
-      "description": "Pendiente de aprobación institucional."
+      "station_count": 60,
+      "priority_coverage_percent": 64.3,
+      "optimization_status": "objetivo_no_alcanzado",
+      "description": "Modelo predictivo, no calibrado en campo"
     }
   },
   "approved_public_zones": []
